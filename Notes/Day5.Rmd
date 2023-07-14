@@ -1,0 +1,225 @@
+```{r setup}
+install.packages("dplyr")
+library(dplyr)
+library(ggplot2)
+```
+
+We will be practicing with dplyr functions using the starwars dataset:
+
+```{r}
+starwars
+head(starwars)
+```
+
+# Subset rows with filter
+
+filter() allows
+
+```{r}
+##Filter for rows with human Star Wars for rows with human Star Wars chracters
+filter(starwars, species == "Human")
+humans
+filter(humans, sex == "male")
+humans <- filter(starwars, species == "Human", sex == "male")
+filter(starwars, species == "Human", sex == "male")
+```
+
+We can use different operators to filter:
+
+```{r}
+##return characters with a missing mass
+filter(starwars, is.na(mass))
+```
+
+```{r}
+## How to get all chracters that are NOT human?
+filter(starwars, species != "Human")
+```
+
+variable_name %in% vector_of_values returns TRUE if variable_name is equal to one of the values in vector_of_values
+
+```{r}
+skin_color <- "grey"
+skin_color %in% c("yellow", "fair", "tan" )
+
+filter(starwars, hair_color %in% c("brown", "blond"))
+
+```
+
+grepel("characters_of_intrest", variable_name) returns TRUE if variable_name contains the characters_of_intrest
+
+```{r}
+filter(starwars, grepl("blond", hair_color))
+
+filter(starwars, grepl("blue", eye_color))
+```
+
+You can use \<, \>, \<=, \>= to comapre numerica variables or categorical variables
+
+-   nominal categorical variables are ranked alphabetically,
+
+-   ordinal categorical variables (factors are ranked based on the built-in order
+
+```{r}
+filter(starwars, name <"D") ## ranking based on alphabetical order
+
+str(diamonds)
+filter(diamonds, cut > "Good") #ranking is based on leveels of ordered factor cut
+
+"D" < "d" #false
+"d" < "D" #true
+```
+
+between(x, left, right) is a shorthand for x \>= left & x \<=right
+
+```{r}
+between(5, 1, 7)
+filter(starwars, between(mass, 50, 100))
+```
+
+## Practice
+
+```{r}
+filter(starwars, is.na(hair_color))
+
+filter(starwars, height < 100, species != "Droid")
+
+filter(starwars, between(birth_year, 100, 200))
+
+```
+
+# Order rows with arrange
+
+arrange() reorders rows based on the values of column(s)
+
+```{r}
+##order by name
+arrange(starwars, name)
+
+#order by species and birth year
+arrange(starwars, species, birth_year)
+
+#birth year in descending
+arrange(starwars, species, desc(birth_year))
+```
+
+```         
+```
+
+Practice
+
+```{r}
+
+arrange(starwars, desc(height))
+
+arrange(starwars, height, species) 
+arrange(starwars, species, height) 
+
+arrange(starwars, hair_color, eye_color)
+
+
+
+```
+
+# Subset columns with select()
+
+```{r}
+select(starwars, hair_color, skin_color, eye_color)
+character_colors <- select(starwars, hair_color, skin_color, eye_color)
+character_colors
+```
+
+We can also select multiple columns in a row
+
+```{r}
+#all columns between name and eye_color (inclusive)
+select(starwars, name:eye_color)
+```
+
+We can also remove columns by name using a -
+
+```{r}
+starwars
+select(starwars, -films, -vehicles, -starships)
+select(starwars, -c(films, vehicles, starships))
+```
+
+Helpful functions
+
+everything0 is a shortcut for "everything else"
+
+```{r}
+select(starwars, species, everything())
+starwars_names <- sort(names(starwars))
+starwars_names
+select(starwars, starwars_names)
+
+```
+
+```{r}
+select(starwars, starts_with("h"))
+
+select(starwars, ("or"))
+```
+
+Practice
+
+```{r}
+select(starwars, homeworld, species)
+
+select(starwars, contains("color"), birth_year)
+select(starwars, hair_color:birth_year)
+select(starwars, hair_color, skin_color, eye_color )
+```
+
+# Add new variables with mutate
+
+```{r}
+starwars_small <- select(starwars, height, mass, species)
+starwars_small
+
+mutate(starwars_small,
+       height_m = height/100)
+```
+
+We can also create multiple variables at once and we can refer to variables we just created
+
+```{r}
+mutate(starwars_small,
+       height_m = height/100,
+       bmi = mass/height_m^2)
+```
+
+Summary statistics give one value for the entire column: sum(), mean()
+
+```{r}
+mutate(starwars_small,
+      row_addtion = height + mass,
+      summary_sum = sum(height, mass, na.rm = T))
+```
+
+Group by a variable using the.by parameter
+
+```{r}
+mutate(starwars_small,
+       species_mass = mean(mass, na,rm=T),
+       .by = species)
+```
+
+Practice
+
+```{r}
+mutate(starwars_small,
+       mass_lbs = mass*2.2)
+```
+
+Summarize data with summarize
+
+```{r}
+summarize(starwars,
+         mean_mass = mean(mass, na.rm = T))
+
+summarize(starwars,
+         mean_mass = mean(mass, na.rm = t),
+         .by = species)
+```
